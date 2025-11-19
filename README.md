@@ -35,35 +35,78 @@ Tuesday는 투자 포트폴리오를 관리하는 데스크톱 애플리케이�
 1. `dist/Tuesday.exe` 파일을 실행합니다.
 2. 별도의 설치나 Python 환경이 필요 없습니다.
 
-### 방법 2: 소스 코드에서 실행
+### 방법 2: 소스 코드에서 실행 (Windows - 권장)
 
-1. 저장소를 클론합니다:
+#### 빠른 설치 (자동 스크립트)
+```bash
+# 1. setup_venv.bat 실행 - 가상환경 생성 및 의존성 설치
+setup_venv.bat
+
+# 2. 가상환경 활성화
+venv\Scripts\activate
+
+# 3. 프로그램 실행
+python main.py
+```
+
+#### 수동 설치
+1. **저장소를 클론합니다:**
 ```bash
 git clone <repository-url>
 cd Tuesday
 ```
 
-2. 가상환경을 생성합니다 (선택사항):
+2. **Python 3.8 이상 설치 확인:**
 ```bash
-python -m venv venv
-# Windows
-venv\Scripts\activate
-# Linux/Mac
-source venv/bin/activate
+python --version
 ```
 
-3. 의존성을 설치합니다:
+3. **가상환경을 생성합니다 (권장):**
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+4. **pip 업그레이드:**
+```bash
+python -m pip install --upgrade pip
+```
+
+5. **의존성을 설치합니다:**
 ```bash
 pip install -r requirements.txt
 ```
 
-4. 샘플 데이터베이스를 생성합니다:
+6. **PyQt5 오류 시 해결:**
+```bash
+# PyQt5 DLL 오류가 발생하면
+fix_pyqt5.bat
+```
+
+7. **샘플 데이터베이스를 생성합니다:**
 ```bash
 python create_sample_db.py
 ```
 
-5. 프로그램을 실행합니다:
+8. **프로그램을 실행합니다:**
 ```bash
+python main.py
+```
+
+### 방법 3: Linux/Mac에서 실행
+
+```bash
+# 가상환경 생성 및 활성화
+python3 -m venv venv
+source venv/bin/activate
+
+# 의존성 설치
+pip install -r requirements.txt
+
+# 샘플 DB 생성
+python create_sample_db.py
+
+# 실행
 python main.py
 ```
 

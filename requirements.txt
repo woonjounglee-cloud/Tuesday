@@ -1,5 +1,14 @@
-PyQt5>=5.15.9
-pandas>=2.0.0
-openpyxl>=3.1.0
-matplotlib>=3.7.0
-pyinstaller>=5.13.0
+# GUI Framework
+PyQt5==5.15.9
+
+# Excel 파일 처리
+openpyxl==3.1.2
+
+# 차트 및 그래프
+matplotlib==3.7.1
+
+# 실행 파일 빌드 (개발용)
+pyinstaller==5.13.2
+
+# 선택사항: CSV 처리 강화
+# pandas==2.0.3

@@ -1,6 +1,5 @@
 @echo off
-REM PyQt5 DLL 오류 해결 스크립트
-
+chcp 65001 >nul
 echo ===================================
 echo PyQt5 DLL Error Fix Script
 echo ===================================
@@ -19,7 +18,7 @@ pip install PyQt5==5.15.9
 
 echo.
 echo [4/4] Testing PyQt5...
-python -c "from PyQt5.QtWidgets import QApplication; print('PyQt5 설치 성공!')"
+python -c "from PyQt5.QtWidgets import QApplication; print('PyQt5 installed successfully!')"
 
 echo.
 echo ===================================

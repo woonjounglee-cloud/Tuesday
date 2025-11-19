@@ -1,6 +1,5 @@
 @echo off
-REM 가상환경 설정 스크립트
-
+chcp 65001 >nul
 echo ===================================
 echo Virtual Environment Setup
 echo ===================================
@@ -29,11 +28,8 @@ echo.
 echo ===================================
 echo Setup Complete!
 echo.
-echo To activate the virtual environment:
-echo   venv\Scripts\activate
-echo.
-echo To run Tuesday:
-echo   python main.py
+echo To activate: venv\Scripts\activate
+echo To run: python main.py
 echo ===================================
 
 pause

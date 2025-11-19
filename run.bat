@@ -1,12 +1,16 @@
 @echo off
 echo ========================================
-echo Tuesday Web App Launcher
+echo Tuesday Web Server
 echo ========================================
 echo.
-echo Starting Tuesday on http://localhost:8501
+echo Starting server on http://localhost:8000
+echo.
+echo Open your browser and go to:
+echo   http://localhost:8000
 echo.
 echo Press Ctrl+C to stop the server
 echo ========================================
 echo.
 
-streamlit run app.py
+python server.py
+pause

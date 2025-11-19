@@ -1,0 +1,11 @@
+# GUI Framework (PySide6 - PyQt5 대체)
+PySide6==6.5.2
+
+# Excel 파일 처리
+openpyxl==3.1.2
+
+# 차트 및 그래프
+matplotlib==3.7.1
+
+# 실행 파일 빌드 (개발용)
+pyinstaller==5.13.2

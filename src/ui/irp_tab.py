@@ -112,7 +112,7 @@ class IRPTab(QWidget):
         self.balance_table = QTableWidget()
         self.balance_table.setColumnCount(7)
         self.balance_table.setHorizontalHeaderLabels([
-            '연도', '월', '투자원금', '입금', '잔고', '수익률', '기타'
+            '연도', '월', '투자원금', '추가납입', '잔고', '수익률', '기타'
         ])
         self.balance_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         # 기타 칸을 4배 크게
@@ -149,9 +149,9 @@ class IRPTab(QWidget):
 
         # 테이블
         self.portfolio_table = QTableWidget()
-        self.portfolio_table.setColumnCount(8)
+        self.portfolio_table.setColumnCount(7)
         self.portfolio_table.setHorizontalHeaderLabels([
-            '종목코드', '종목명', '자산군', '구분', '세팅비중', '투자금배분', '현재비중', '빨강매수'
+            '종목코드', '종목명', '자산군', '구분', '세팅비중', '현재비중', '빨강매수'
         ])
         self.portfolio_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.portfolio_table.cellChanged.connect(self.on_portfolio_cell_changed)
@@ -212,12 +212,12 @@ class IRPTab(QWidget):
 
             # Balance 데이터 저장
             balance_data = self.get_table_data(self.balance_table)
-            balance_headers = ['연도', '월', '투자원금', '입금', '잔고', '수익률', '기타']
+            balance_headers = ['연도', '월', '투자원금', '추가납입', '잔고', '수익률', '기타']
             self.excel_handler.write_sheet_data('Balance', balance_data, balance_headers)
 
             # Portfolio 데이터 저장
             portfolio_data = self.get_table_data(self.portfolio_table)
-            portfolio_headers = ['종목코드', '종목명', '자산군', '구분', '세팅비중', '투자금배분', '현재비중', '빨강매수']
+            portfolio_headers = ['종목코드', '종목명', '자산군', '구분', '세팅비중', '현재비중', '빨강매수']
             self.excel_handler.write_sheet_data('Portfolio', portfolio_data, portfolio_headers)
 
             self.excel_handler.save()
@@ -451,17 +451,13 @@ class IRPTab(QWidget):
             setting_ratio_item = self.portfolio_table.item(row_idx, 4)
             setting_ratio = float(setting_ratio_item.text()) if setting_ratio_item and setting_ratio_item.text() else 0
 
-            # 투자금 배분 계산
-            investment_allocation = self.calculator.calculate_investment_allocation(total_initial, setting_ratio)
-            self.portfolio_table.setItem(row_idx, 5, QTableWidgetItem(f"{investment_allocation:,.0f}"))
-
             # ROI 테이블에서 해당 종목의 평가금 가져오기
             eval_item = self.roi_table.item(row_idx, 5)
             evaluation = float(eval_item.text().replace(',', '')) if eval_item and eval_item.text() else 0
 
             # 현재비중 계산
             current_ratio = self.calculator.calculate_current_ratio(evaluation, total_evaluation)
-            self.portfolio_table.setItem(row_idx, 6, QTableWidgetItem(f"{current_ratio:.1f}%"))
+            self.portfolio_table.setItem(row_idx, 5, QTableWidgetItem(f"{current_ratio:.1f}%"))
 
             # 빨강매수 계산
             rebalancing_amount = self.calculator.calculate_rebalancing(setting_ratio, current_ratio, total_evaluation)
@@ -472,7 +468,7 @@ class IRPTab(QWidget):
             if rebalancing_amount > 0:
                 rebalancing_item.setForeground(QColor(255, 0, 0))
 
-            self.portfolio_table.setItem(row_idx, 7, rebalancing_item)
+            self.portfolio_table.setItem(row_idx, 6, rebalancing_item)
 
         self.portfolio_table.blockSignals(False)  # 신호 복원
 

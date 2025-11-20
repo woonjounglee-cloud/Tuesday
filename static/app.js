@@ -261,7 +261,7 @@ function renderPortfolioTable() {
     data.portfolio.forEach((row, index) => {
         const settingRatio = parseFloat(row['세팅비중'] || 0);
         const currentRatio = parseFloat(row['현재비중'] || 0);
-        const rebalancing = parseFloat(row['빨강매수'] || 0);
+        const rebalancing = parseFloat(row['녹색매수'] || 0);
 
         totalSetting += settingRatio;
         totalCurrent += currentRatio;
@@ -423,8 +423,10 @@ function drawBalanceChart() {
     const balances = data.balance.map(row => parseFloat(row['잔고'] || 0));
     const labels = data.balance.map(row => `${row['연도'] || ''} ${row['월'] || ''}`);
 
-    const maxBalance = Math.max(...balances, 0);
-    const minBalance = 0;
+    // Y축 범위 설정: 16,000,000 ~ 최대값 (500,000 단위)
+    const minBalance = 16000000;
+    const maxData = Math.max(...balances, minBalance);
+    const maxBalance = Math.ceil((maxData - minBalance) / 500000) * 500000 + minBalance;
     const range = maxBalance - minBalance;
 
     // 차트 영역
@@ -436,11 +438,14 @@ function drawBalanceChart() {
     ctx.fillStyle = '#f8f9fa';
     ctx.fillRect(0, 0, width, height);
 
-    // 그리드 라인
+    // 그리드 라인 (500,000 단위)
     ctx.strokeStyle = '#dee2e6';
     ctx.lineWidth = 1;
-    for (let i = 0; i <= 5; i++) {
-        const y = padding + (chartHeight / 5) * i;
+    const gridStep = 500000;
+    const gridCount = Math.ceil(range / gridStep);
+    for (let i = 0; i <= gridCount; i++) {
+        const value = minBalance + (gridStep * i);
+        const y = padding + chartHeight - ((value - minBalance) / range * chartHeight);
         ctx.beginPath();
         ctx.moveTo(padding, y);
         ctx.lineTo(width - padding, y);
@@ -492,11 +497,12 @@ function drawBalanceChart() {
         }
     });
 
-    // Y축 레이블
+    // Y축 레이블 (500,000 단위)
     ctx.textAlign = 'right';
-    for (let i = 0; i <= 5; i++) {
-        const value = minBalance + (range / 5) * (5 - i);
-        const y = padding + (chartHeight / 5) * i + 5;
+    ctx.font = '11px Arial';
+    for (let i = 0; i <= gridCount; i++) {
+        const value = minBalance + (gridStep * i);
+        const y = padding + chartHeight - ((value - minBalance) / range * chartHeight) + 4;
         ctx.fillText(formatCurrency(value), padding - 10, y);
     }
 }
@@ -534,7 +540,7 @@ function createEmptyPortfolioRow() {
         '구분': '',
         '세팅비중': 0,
         '현재비중': 0,
-        '빨강매수': 0
+        '녹색매수': 0
     };
 }
 

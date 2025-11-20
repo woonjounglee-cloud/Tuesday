@@ -178,13 +178,6 @@ header p {
     justify-content: center;
 }
 
-.note-col {
-    min-width: 200px;
-}
-
-.note-input {
-    min-width: 300px;
-}
 
 .button-group {
     display: flex;
@@ -218,6 +211,61 @@ table {
     width: 100%;
     border-collapse: collapse;
     background: white;
+    table-layout: fixed;
+}
+
+/* ROI 테이블 컬럼 너비 */
+#roi-table th:nth-child(1) { width: 8%; }  /* 종목코드 */
+#roi-table th:nth-child(2) { width: 28%; }  /* 종목명 */
+#roi-table th:nth-child(3) { width: 13%; }  /* 초기투자금 */
+#roi-table th:nth-child(4) { width: 8%; }  /* 수량 */
+#roi-table th:nth-child(5) { width: 10%; }  /* 종가 */
+#roi-table th:nth-child(6) { width: 13%; }  /* 평가금 */
+#roi-table th:nth-child(7) { width: 10%; }  /* 수익률 */
+#roi-table th:nth-child(8) { width: 10%; }  /* 삭제 */
+
+#roi-table input {
+    font-size: 0.8rem;
+}
+
+#roi-table td:not(:has(input)) {
+    font-size: 0.8rem;
+}
+
+/* Balance 테이블 컬럼 너비 */
+#balance-table th:nth-child(1) { width: 10%; }  /* 연도 */
+#balance-table th:nth-child(2) { width: 8%; }  /* 월 */
+#balance-table th:nth-child(3) { width: 15%; }  /* 투자원금 */
+#balance-table th:nth-child(4) { width: 12%; }  /* 추가납입 */
+#balance-table th:nth-child(5) { width: 15%; }  /* 잔고 */
+#balance-table th:nth-child(6) { width: 10%; }  /* 수익률 */
+#balance-table th:nth-child(7) { width: 20%; }  /* 기타 */
+#balance-table th:nth-child(8) { width: 10%; }  /* 삭제 */
+
+#balance-table input {
+    font-size: 0.8rem;
+}
+
+#balance-table td:not(:has(input)) {
+    font-size: 0.8rem;
+}
+
+/* Portfolio 테이블 컬럼 너비 */
+#portfolio-table th:nth-child(1) { width: 8%; }  /* 종목코드 */
+#portfolio-table th:nth-child(2) { width: 28%; }  /* 종목명 */
+#portfolio-table th:nth-child(3) { width: 10%; }  /* 자산군 */
+#portfolio-table th:nth-child(4) { width: 12%; }  /* 구분 */
+#portfolio-table th:nth-child(5) { width: 11%; }  /* 세팅비중 */
+#portfolio-table th:nth-child(6) { width: 11%; }  /* 현재비중 */
+#portfolio-table th:nth-child(7) { width: 12%; }  /* 녹색매수 */
+#portfolio-table th:nth-child(8) { width: 8%; }  /* 삭제 */
+
+#portfolio-table input {
+    font-size: 0.8rem;
+}
+
+#portfolio-table td:not(:has(input)) {
+    font-size: 0.8rem;
 }
 
 thead {
@@ -229,6 +277,8 @@ th {
     padding: 15px;
     text-align: left;
     font-weight: 600;
+    font-size: 0.85rem;
+    line-height: 1.2;
 }
 
 td {

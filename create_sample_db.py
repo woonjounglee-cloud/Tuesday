@@ -57,7 +57,7 @@ try:
 
     # Portfolio 시트
     ws_portfolio = wb.create_sheet('Portfolio')
-    portfolio_headers = ['종목코드', '종목명', '자산군', '구분', '세팅비중', '현재비중', '빨강매수']
+    portfolio_headers = ['종목코드', '종목명', '자산군', '구분', '세팅비중', '현재비중', '녹색매수']
     portfolio_sample_data = [
         ['449170', 'TIGER KOFR금리액티브(합성)', '안전자산', '현금', 10.0, 31.2, -3894961],
         ['411060', 'ACE KRX금현물', '대체자산', '금', 15.0, 12.6, 443370],

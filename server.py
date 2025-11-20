@@ -310,10 +310,10 @@ class TuesdayHandler(http.server.SimpleHTTPRequestHandler):
                 current_ratio = (eval_amt / total_eval * 100) if total_eval > 0 else 0
                 row['현재비중'] = round(current_ratio, 1)
 
-                # 빨강매수 계산
+                # 녹색매수 계산
                 setting_ratio = float(row.get('세팅비중', 0) or 0)
                 rebalancing = (setting_ratio - current_ratio) / 100 * total_eval
-                row['빨강매수'] = round(rebalancing, 0)
+                row['녹색매수'] = round(rebalancing, 0)
 
             self.send_json_response({'portfolio': portfolio_data})
         except Exception as e:

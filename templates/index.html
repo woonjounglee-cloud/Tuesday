@@ -9,122 +9,186 @@
 <body>
     <div class="container">
         <header>
-            <h1>📊 Tuesday</h1>
-            <p>Portfolio Management System</p>
+            <div class="header-content">
+                <div class="title-section">
+                    <h1>📊 Tuesday</h1>
+                    <p>Portfolio Management System</p>
+                </div>
+                <div class="upload-section">
+                    <label for="etf-upload" class="upload-btn">
+                        📄 ETF
+                        <input type="file" id="etf-upload" accept=".xlsx,.csv" hidden onchange="handleFileUpload('etf', this.files[0])">
+                    </label>
+                    <label for="stock-upload" class="upload-btn">
+                        📈 주식
+                        <input type="file" id="stock-upload" accept=".xlsx,.csv" hidden onchange="handleFileUpload('stock', this.files[0])">
+                    </label>
+                </div>
+            </div>
         </header>
 
         <nav class="tabs">
-            <button class="tab-button active" data-tab="roi">📈 ROI</button>
-            <button class="tab-button" data-tab="balance">💰 Balance</button>
-            <button class="tab-button" data-tab="portfolio">🎯 Portfolio</button>
+            <div class="tab-group">
+                <span class="tab-group-label">Home</span>
+                <button class="tab-button active" data-tab="home-irp" data-db="Home_IRP">IRP</button>
+            </div>
+            <div class="tab-group">
+                <span class="tab-group-label">WJ</span>
+                <button class="tab-button" data-tab="wj-isa" data-db="WJ_ISA">ISA</button>
+                <button class="tab-button" data-tab="wj-stock" data-db="WJ_Stock">주식</button>
+            </div>
+            <div class="tab-group">
+                <span class="tab-group-label">MG</span>
+                <button class="tab-button" data-tab="mg-irp" data-db="MG_IRP">IRP</button>
+                <button class="tab-button" data-tab="mg-pension" data-db="MG_Pension">개인연금</button>
+            </div>
         </nav>
 
-        <!-- ROI Tab -->
-        <div id="roi-tab" class="tab-content active">
-            <div class="section-header">
-                <h2>ROI (Return on Investment)</h2>
-                <div class="button-group">
-                    <button onclick="addRow('roi')">➕ 행 추가</button>
-                    <button onclick="saveData()">💾 저장</button>
-                    <button onclick="loadData()">🔄 새로고침</button>
+        <!-- Home - IRP Tab -->
+        <div id="home-irp-tab" class="tab-content active">
+
+            <!-- ROI Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>📈 ROI (Return on Investment)</h2>
+                    <div class="button-group">
+                        <button onclick="addRow('roi')">➕ 행 추가</button>
+                        <button onclick="saveData()">💾 저장</button>
+                        <button onclick="loadData()">🔄 새로고침</button>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table id="roi-table">
+                        <thead>
+                            <tr>
+                                <th>종목코드</th>
+                                <th>종목명</th>
+                                <th>초기투자금</th>
+                                <th>수량</th>
+                                <th>종가</th>
+                                <th>평가금</th>
+                                <th>수익률</th>
+                                <th>삭제</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <tfoot>
+                            <tr class="summary">
+                                <td colspan="2">합계</td>
+                                <td id="total-initial">0</td>
+                                <td></td>
+                                <td></td>
+                                <td id="total-eval">0</td>
+                                <td id="total-roi">0%</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
 
-            <div class="table-wrapper">
-                <table id="roi-table">
-                    <thead>
-                        <tr>
-                            <th>종목코드</th>
-                            <th>종목명</th>
-                            <th>초기투자금</th>
-                            <th>수량</th>
-                            <th>종가</th>
-                            <th>평가금</th>
-                            <th>수익률</th>
-                            <th>삭제</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                    <tfoot>
-                        <tr class="summary">
-                            <td colspan="2">합계</td>
-                            <td id="total-initial">0</td>
-                            <td></td>
-                            <td></td>
-                            <td id="total-eval">0</td>
-                            <td id="total-roi">0%</td>
-                            <td></td>
-                        </tr>
-                    </tfoot>
-                </table>
+            <!-- Balance Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>💰 Balance (잔고 현황)</h2>
+                    <div class="button-group">
+                        <button onclick="addRow('balance')">➕ 행 추가</button>
+                    </div>
+                </div>
+
+                <div class="balance-container">
+                    <div class="table-wrapper balance-table-wrapper">
+                        <table id="balance-table">
+                            <thead>
+                                <tr>
+                                    <th>연도</th>
+                                    <th>월</th>
+                                    <th>투자원금</th>
+                                    <th>추가납입</th>
+                                    <th>잔고</th>
+                                    <th>수익률</th>
+                                    <th class="note-col">기타</th>
+                                    <th>삭제</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="balance-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>🎯 Portfolio (포트폴리오)</h2>
+                    <div class="button-group">
+                        <button onclick="performRebalancing()">🔄 Rebalancing</button>
+                        <button onclick="addRow('portfolio')">➕ 행 추가</button>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table id="portfolio-table">
+                        <thead>
+                            <tr>
+                                <th>종목코드</th>
+                                <th>종목명</th>
+                                <th>자산군</th>
+                                <th>구분</th>
+                                <th>세팅비중(%)</th>
+                                <th>현재비중(%)</th>
+                                <th>빨강매수</th>
+                                <th>삭제</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <tfoot>
+                            <tr class="summary">
+                                <td colspan="4">합계</td>
+                                <td id="total-setting">0%</td>
+                                <td id="total-current">0%</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <!-- Balance Tab -->
-        <div id="balance-tab" class="tab-content">
-            <div class="section-header">
-                <h2>Balance (잔고 현황)</h2>
-                <div class="button-group">
-                    <button onclick="addRow('balance')">➕ 행 추가</button>
-                    <button onclick="saveData()">💾 저장</button>
-                </div>
-            </div>
-
-            <div class="table-wrapper">
-                <table id="balance-table">
-                    <thead>
-                        <tr>
-                            <th>연도</th>
-                            <th>월</th>
-                            <th>투자원금</th>
-                            <th>추가납입</th>
-                            <th>잔고</th>
-                            <th>수익률</th>
-                            <th>기타</th>
-                            <th>삭제</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+        <!-- WJ - ISA Tab -->
+        <div id="wj-isa-tab" class="tab-content">
+            <div class="coming-soon">
+                <h2>🚧 WJ - ISA</h2>
+                <p>준비 중입니다...</p>
             </div>
         </div>
 
-        <!-- Portfolio Tab -->
-        <div id="portfolio-tab" class="tab-content">
-            <div class="section-header">
-                <h2>Portfolio (포트폴리오)</h2>
-                <div class="button-group">
-                    <button onclick="performRebalancing()">🔄 Rebalancing</button>
-                    <button onclick="addRow('portfolio')">➕ 행 추가</button>
-                    <button onclick="saveData()">💾 저장</button>
-                </div>
+        <!-- WJ - 주식 Tab -->
+        <div id="wj-stock-tab" class="tab-content">
+            <div class="coming-soon">
+                <h2>🚧 WJ - 주식</h2>
+                <p>준비 중입니다...</p>
             </div>
+        </div>
 
-            <div class="table-wrapper">
-                <table id="portfolio-table">
-                    <thead>
-                        <tr>
-                            <th>종목코드</th>
-                            <th>종목명</th>
-                            <th>자산군</th>
-                            <th>구분</th>
-                            <th>세팅비중(%)</th>
-                            <th>현재비중(%)</th>
-                            <th>빨강매수</th>
-                            <th>삭제</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                    <tfoot>
-                        <tr class="summary">
-                            <td colspan="4">합계</td>
-                            <td id="total-setting">0%</td>
-                            <td id="total-current">0%</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                    </tfoot>
-                </table>
+        <!-- MG - IRP Tab -->
+        <div id="mg-irp-tab" class="tab-content">
+            <div class="coming-soon">
+                <h2>🚧 MG - IRP</h2>
+                <p>준비 중입니다...</p>
+            </div>
+        </div>
+
+        <!-- MG - 개인연금 Tab -->
+        <div id="mg-pension-tab" class="tab-content">
+            <div class="coming-soon">
+                <h2>🚧 MG - 개인연금</h2>
+                <p>준비 중입니다...</p>
             </div>
         </div>
 

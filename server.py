@@ -10,7 +10,6 @@ import urllib.parse
 import mimetypes
 import re
 import tempfile
-import cgi
 from pathlib import Path
 from io import BytesIO
 

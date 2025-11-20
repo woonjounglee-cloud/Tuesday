@@ -104,9 +104,10 @@ class TuesdayHandler(http.server.SimpleHTTPRequestHandler):
                 # ROI 데이터
                 if 'ROI' in wb.sheetnames:
                     ws = wb['ROI']
-                    headers = [cell.value for cell in ws[1]]
+                    # 헤더 읽기
+                    headers = [cell for cell in next(ws.iter_rows(min_row=1, max_row=1, values_only=True))]
                     data['roi'] = [
-                        {headers[i]: cell.value for i, cell in enumerate(row) if i < len(headers)}
+                        {headers[i]: cell for i, cell in enumerate(row) if i < len(headers)}
                         for row in ws.iter_rows(min_row=2, values_only=True)
                         if any(cell is not None for cell in row)
                     ]
@@ -114,9 +115,10 @@ class TuesdayHandler(http.server.SimpleHTTPRequestHandler):
                 # Balance 데이터
                 if 'Balance' in wb.sheetnames:
                     ws = wb['Balance']
-                    headers = [cell.value for cell in ws[1]]
+                    # 헤더 읽기
+                    headers = [cell for cell in next(ws.iter_rows(min_row=1, max_row=1, values_only=True))]
                     data['balance'] = [
-                        {headers[i]: cell.value for i, cell in enumerate(row) if i < len(headers)}
+                        {headers[i]: cell for i, cell in enumerate(row) if i < len(headers)}
                         for row in ws.iter_rows(min_row=2, values_only=True)
                         if any(cell is not None for cell in row)
                     ]
@@ -124,9 +126,10 @@ class TuesdayHandler(http.server.SimpleHTTPRequestHandler):
                 # Portfolio 데이터
                 if 'Portfolio' in wb.sheetnames:
                     ws = wb['Portfolio']
-                    headers = [cell.value for cell in ws[1]]
+                    # 헤더 읽기
+                    headers = [cell for cell in next(ws.iter_rows(min_row=1, max_row=1, values_only=True))]
                     data['portfolio'] = [
-                        {headers[i]: cell.value for i, cell in enumerate(row) if i < len(headers)}
+                        {headers[i]: cell for i, cell in enumerate(row) if i < len(headers)}
                         for row in ws.iter_rows(min_row=2, values_only=True)
                         if any(cell is not None for cell in row)
                     ]

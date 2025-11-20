@@ -40,7 +40,7 @@ function switchTab(tabName, dbName) {
     // DB 변경
     if (dbName) {
         currentDB = dbName;
-        loadData();
+        loadData(false); // 조용히 로드
     }
 }
 
@@ -115,7 +115,7 @@ function updateBalanceFromDate(dateInfo) {
 }
 
 // 데이터 로드
-async function loadData() {
+async function loadData(showMessage = false) {
     try {
         const response = await fetch(`/api/data?db=${currentDB}`);
         const result = await response.json();
@@ -131,8 +131,11 @@ async function loadData() {
         renderPortfolioTable();
         drawBalanceChart();
 
-        showNotification('✅ 데이터를 불러왔습니다.', 'success');
+        if (showMessage) {
+            showNotification('✅ 데이터를 불러왔습니다.', 'success');
+        }
     } catch (error) {
+        console.error('데이터 로드 실패:', error);
         showNotification('❌ 데이터 로드 실패: ' + error.message, 'error');
     }
 }

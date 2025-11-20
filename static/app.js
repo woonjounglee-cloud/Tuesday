@@ -404,7 +404,7 @@ function drawBalanceChart() {
 
     const ctx = canvas.getContext('2d');
     const width = 380;
-    const height = 300;
+    const height = 320;
     canvas.width = width;
     canvas.height = height;
 
@@ -485,16 +485,13 @@ function drawBalanceChart() {
 
     // 축 레이블
     ctx.fillStyle = '#333';
-    ctx.font = '12px Arial';
     ctx.textAlign = 'center';
 
-    // X축 레이블 (최대 5개만 표시)
-    const labelStep = Math.max(1, Math.floor(labels.length / 5));
+    // X축 레이블 (모든 데이터 표시)
+    ctx.font = '11px Arial';
     labels.forEach((label, index) => {
-        if (index % labelStep === 0 || index === labels.length - 1) {
-            const x = padding + (chartWidth / Math.max(labels.length - 1, 1)) * index;
-            ctx.fillText(label, x, height - 10);
-        }
+        const x = padding + (chartWidth / Math.max(labels.length - 1, 1)) * index;
+        ctx.fillText(label, x, height - 15);
     });
 
     // Y축 레이블 (500,000 단위)

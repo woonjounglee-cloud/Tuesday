@@ -227,6 +227,12 @@ function renderBalanceTable() {
     }
 
     data.balance.forEach((row, index) => {
+        // 수익률 계산
+        const principal = parseFloat(row['투자원금'] || 0);
+        const balance = parseFloat(row['잔고'] || 0);
+        const returnRate = principal > 0 ? ((balance - principal) / principal * 100) : 0;
+        const returnRateClass = returnRate < 0 ? 'negative' : 'positive';
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td><input type="text" value="${row['연도'] || ''}" onchange="updateBalance(${index}, '연도', this.value)"></td>
@@ -234,7 +240,7 @@ function renderBalanceTable() {
             <td><input type="number" value="${row['투자원금'] || 0}" onchange="updateBalance(${index}, '투자원금', this.value)" readonly></td>
             <td><input type="number" value="${row['추가납입'] || 0}" onchange="updateBalance(${index}, '추가납입', this.value)"></td>
             <td><input type="number" value="${row['잔고'] || 0}" onchange="updateBalance(${index}, '잔고', this.value)" readonly></td>
-            <td><input type="text" value="${row['수익률'] || '0%'}" readonly></td>
+            <td class="${returnRateClass}">${returnRate.toFixed(1)}%</td>
             <td><input type="text" class="note-input" value="${row['기타'] || ''}" onchange="updateBalance(${index}, '기타', this.value)"></td>
             <td><button class="delete-btn" onclick="deleteRow('balance', ${index})">❌</button></td>
         `;
@@ -404,7 +410,7 @@ function drawBalanceChart() {
 
     const ctx = canvas.getContext('2d');
     const width = 380;
-    const height = 320;
+    const height = 350;
     canvas.width = width;
     canvas.height = height;
 
@@ -429,10 +435,13 @@ function drawBalanceChart() {
     const maxBalance = Math.ceil((maxData - minBalance) / 500000) * 500000 + minBalance;
     const range = maxBalance - minBalance;
 
-    // 차트 영역
-    const padding = 40;
-    const chartWidth = width - padding * 2;
-    const chartHeight = height - padding * 2;
+    // 차트 영역 (bottom 패딩 증가)
+    const paddingTop = 40;
+    const paddingRight = 40;
+    const paddingBottom = 60;
+    const paddingLeft = 40;
+    const chartWidth = width - paddingLeft - paddingRight;
+    const chartHeight = height - paddingTop - paddingBottom;
 
     // 배경
     ctx.fillStyle = '#f8f9fa';
@@ -445,10 +454,10 @@ function drawBalanceChart() {
     const gridCount = Math.ceil(range / gridStep);
     for (let i = 0; i <= gridCount; i++) {
         const value = minBalance + (gridStep * i);
-        const y = padding + chartHeight - ((value - minBalance) / range * chartHeight);
+        const y = paddingTop + chartHeight - ((value - minBalance) / range * chartHeight);
         ctx.beginPath();
-        ctx.moveTo(padding, y);
-        ctx.lineTo(width - padding, y);
+        ctx.moveTo(paddingLeft, y);
+        ctx.lineTo(width - paddingRight, y);
         ctx.stroke();
     }
 
@@ -459,8 +468,8 @@ function drawBalanceChart() {
         ctx.beginPath();
 
         balances.forEach((balance, index) => {
-            const x = padding + (chartWidth / Math.max(balances.length - 1, 1)) * index;
-            const y = padding + chartHeight - ((balance - minBalance) / range * chartHeight);
+            const x = paddingLeft + (chartWidth / Math.max(balances.length - 1, 1)) * index;
+            const y = paddingTop + chartHeight - ((balance - minBalance) / range * chartHeight);
 
             if (index === 0) {
                 ctx.moveTo(x, y);
@@ -474,8 +483,8 @@ function drawBalanceChart() {
         // 포인트 그리기
         ctx.fillStyle = '#667eea';
         balances.forEach((balance, index) => {
-            const x = padding + (chartWidth / Math.max(balances.length - 1, 1)) * index;
-            const y = padding + chartHeight - ((balance - minBalance) / range * chartHeight);
+            const x = paddingLeft + (chartWidth / Math.max(balances.length - 1, 1)) * index;
+            const y = paddingTop + chartHeight - ((balance - minBalance) / range * chartHeight);
 
             ctx.beginPath();
             ctx.arc(x, y, 5, 0, Math.PI * 2);
@@ -490,8 +499,9 @@ function drawBalanceChart() {
     // X축 레이블 (모든 데이터 표시)
     ctx.font = '11px Arial';
     labels.forEach((label, index) => {
-        const x = padding + (chartWidth / Math.max(labels.length - 1, 1)) * index;
-        ctx.fillText(label, x, height - 15);
+        const x = paddingLeft + (chartWidth / Math.max(labels.length - 1, 1)) * index;
+        const y = height - paddingBottom + 25;
+        ctx.fillText(label, x, y);
     });
 
     // Y축 레이블 (500,000 단위)
@@ -499,8 +509,8 @@ function drawBalanceChart() {
     ctx.font = '11px Arial';
     for (let i = 0; i <= gridCount; i++) {
         const value = minBalance + (gridStep * i);
-        const y = padding + chartHeight - ((value - minBalance) / range * chartHeight) + 4;
-        ctx.fillText(formatCurrency(value), padding - 10, y);
+        const y = paddingTop + chartHeight - ((value - minBalance) / range * chartHeight) + 4;
+        ctx.fillText(formatCurrency(value), paddingLeft - 10, y);
     }
 }
 

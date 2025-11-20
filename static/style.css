@@ -277,6 +277,12 @@ td {
     text-align: center;
 }
 
+/* 종목명 열은 왼쪽 정렬 */
+#roi-table td:nth-child(2),
+#portfolio-table td:nth-child(2) {
+    text-align: left;
+}
+
 tbody tr:hover {
     background: #f8f9fa;
 }

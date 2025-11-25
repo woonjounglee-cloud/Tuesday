@@ -8,10 +8,12 @@ let data = {
 
 let currentDB = 'Home_IRP';
 let uploadedFileData = null;
+let selectedDBFile = null;  // 선택된 DB 파일
 
 // 페이지 로드 시 실행
 document.addEventListener('DOMContentLoaded', () => {
     initTabs();
+    loadDBFiles();
     loadData();
     drawBalanceChart();
 });
@@ -44,6 +46,79 @@ function switchTab(tabName, dbName) {
     }
 }
 
+// DB 파일 목록 로드
+async function loadDBFiles() {
+    try {
+        const response = await fetch('/api/db-files');
+        const result = await response.json();
+
+        const selector = document.getElementById('db-selector');
+        if (!selector) return;
+
+        // 기존 옵션 유지하고 새 옵션 추가
+        selector.innerHTML = '<option value="">DB 선택</option>';
+
+        if (result.files && result.files.length > 0) {
+            result.files.forEach(file => {
+                const option = document.createElement('option');
+                option.value = file.filename;
+                option.textContent = file.date;  // YYYYMMDD만 표시
+                selector.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('DB 파일 로드 실패:', error);
+    }
+}
+
+// DB 선택 변경 처리
+async function handleDBChange(filename) {
+    if (!filename) {
+        selectedDBFile = null;
+        return;
+    }
+
+    selectedDBFile = filename;
+
+    // 종목코드 수집
+    const stockCodes = data.roi
+        .map(row => row['종목코드'])
+        .filter(code => code && code.trim() !== '');
+
+    if (stockCodes.length === 0) {
+        showNotification('⚠️ 종목코드가 없습니다.', 'warning');
+        return;
+    }
+
+    try {
+        // VLOOKUP - 종가 조회
+        const response = await fetch(`/api/lookup-price?file=${filename}&codes=${stockCodes.join(',')}`);
+        const result = await response.json();
+
+        if (result.prices) {
+            // ROI 데이터 업데이트
+            data.roi.forEach(row => {
+                const code = row['종목코드'];
+                if (code && result.prices[code]) {
+                    row['종가'] = result.prices[code].price;
+                    // 종목명도 업데이트 (있는 경우)
+                    if (result.prices[code].name) {
+                        row['종목명'] = result.prices[code].name;
+                    }
+                }
+            });
+
+            renderROITable();
+            updatePortfolioFromROI();  // 포트폴리오도 자동 업데이트
+            renderPortfolioTable();
+
+            showNotification('✅ 종가가 업데이트되었습니다!', 'success');
+        }
+    } catch (error) {
+        showNotification('❌ 종가 조회 실패: ' + error.message, 'error');
+    }
+}
+
 // 파일 업로드 처리
 async function handleFileUpload(type, file) {
     if (!file) return;
@@ -68,9 +143,9 @@ async function handleFileUpload(type, file) {
             // ROI 데이터 자동 채우기
             updateROIFromFile(uploadedFileData);
 
-            // Balance 날짜 자동 채우기
+            // Balance에 새 행 추가
             if (result.date) {
-                updateBalanceFromDate(result.date);
+                addBalanceRowFromUpload(result.date);
             }
 
             renderROITable();
@@ -102,16 +177,76 @@ function updateROIFromFile(fileData) {
     });
 }
 
-// 날짜로 Balance 업데이트
-function updateBalanceFromDate(dateInfo) {
-    // 새로운 행 추가 또는 마지막 행 업데이트
-    if (data.balance.length === 0) {
-        data.balance.push(createEmptyBalanceRow());
-    }
+// Balance에 새 행 추가 (ETF 업로드 시)
+function addBalanceRowFromUpload(dateInfo) {
+    if (!dateInfo || !dateInfo.year || !dateInfo.month) return;
 
-    const lastRow = data.balance[data.balance.length - 1];
-    lastRow['연도'] = dateInfo.year + '년';
-    lastRow['월'] = dateInfo.month + '월';
+    // ROI 테이블에서 총합 계산
+    let totalEval = 0;
+    let totalInitial = 0;
+
+    data.roi.forEach(row => {
+        const quantity = parseFloat(row['수량'] || 0);
+        const price = parseFloat(row['종가'] || 0);
+        const evaluation = quantity * price;
+        const initial = parseFloat(row['초기투자금'] || 0);
+
+        totalEval += evaluation;
+        totalInitial += initial;
+    });
+
+    // 수익률 계산
+    const roi = totalInitial > 0 ? ((totalEval - totalInitial) / totalInitial * 100) : 0;
+
+    // 새 행 추가
+    const newRow = {
+        '연도': dateInfo.year + '년',
+        '월': dateInfo.month + '월',
+        '투자원금': totalInitial,
+        '추가납입': 0,
+        '잔고': totalEval,
+        '수익률': roi.toFixed(1) + '%',
+        '기타': ''
+    };
+
+    data.balance.push(newRow);
+}
+
+// 포트폴리오 테이블 업데이트 (ROI 기반)
+function updatePortfolioFromROI() {
+    if (!data.roi || !data.portfolio) return;
+
+    // 총 평가금 계산
+    let totalEval = 0;
+    data.roi.forEach(row => {
+        const quantity = parseFloat(row['수량'] || 0);
+        const price = parseFloat(row['종가'] || 0);
+        totalEval += quantity * price;
+    });
+
+    // 각 포트폴리오 항목의 현재비중과 녹색매수 계산
+    data.portfolio.forEach(row => {
+        const code = row['종목코드'];
+        if (!code) return;
+
+        // ROI에서 해당 종목의 평가금 찾기
+        let evalAmt = 0;
+        const roiRow = data.roi.find(r => r['종목코드'] === code);
+        if (roiRow) {
+            const quantity = parseFloat(roiRow['수량'] || 0);
+            const price = parseFloat(roiRow['종가'] || 0);
+            evalAmt = quantity * price;
+        }
+
+        // 현재비중 계산
+        const currentRatio = totalEval > 0 ? (evalAmt / totalEval * 100) : 0;
+        row['현재비중'] = currentRatio;
+
+        // 녹색매수 계산
+        const settingRatio = parseFloat(row['세팅비중'] || 0);
+        const rebalancing = (settingRatio - currentRatio) / 100 * totalEval;
+        row['녹색매수'] = rebalancing;
+    });
 }
 
 // 데이터 로드
@@ -174,9 +309,9 @@ function renderROITable() {
         tr.innerHTML = `
             <td><input type="text" value="${row['종목코드'] || ''}" onchange="updateROI(${index}, '종목코드', this.value)"></td>
             <td><input type="text" value="${row['종목명'] || ''}" onchange="updateROI(${index}, '종목명', this.value)"></td>
-            <td><input type="number" value="${row['초기투자금'] || 0}" onchange="updateROI(${index}, '초기투자금', this.value)"></td>
+            <td><input type="text" value="${formatNumber(row['초기투자금'] || 0)}" onchange="updateROI(${index}, '초기투자금', this.value.replace(/,/g, ''))"></td>
             <td><input type="number" value="${row['수량'] || 0}" onchange="updateROI(${index}, '수량', this.value)"></td>
-            <td><input type="number" value="${row['종가'] || 0}" onchange="updateROI(${index}, '종가', this.value)"></td>
+            <td><input type="text" value="${formatNumber(row['종가'] || 0)}" onchange="updateROI(${index}, '종가', this.value.replace(/,/g, ''))"></td>
             <td>${formatCurrency(evaluation)}</td>
             <td class="${roi < 0 ? 'negative' : 'positive'}">${roi.toFixed(1)}%</td>
             <td><button class="delete-btn" onclick="deleteRow('roi', ${index})">❌</button></td>
@@ -559,6 +694,14 @@ function formatCurrency(num) {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
     }).format(num).replace('₩', '₩');
+}
+
+// 숫자 포맷팅 (천 단위 콤마만)
+function formatNumber(num) {
+    return new Intl.NumberFormat('ko-KR', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+    }).format(num);
 }
 
 // 알림 표시

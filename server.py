@@ -51,6 +51,10 @@ class TuesdayHandler(http.server.SimpleHTTPRequestHandler):
             self.serve_file(file_path)
         elif self.path.startswith('/api/data'):
             self.api_get_data()
+        elif self.path.startswith('/api/db-files'):
+            self.api_get_db_files()
+        elif self.path.startswith('/api/lookup-price'):
+            self.api_lookup_price()
         else:
             self.send_error(404)
 
@@ -282,6 +286,66 @@ class TuesdayHandler(http.server.SimpleHTTPRequestHandler):
             print(f"Error in api_upload_file: {e}")
             import traceback
             traceback.print_exc()
+            self.send_json_response({'error': str(e)}, 500)
+
+    def api_get_db_files(self):
+        """DB 파일 목록 가져오기 API"""
+        try:
+            db_files = []
+
+            # db 디렉토리에서 data_*.xlsx 파일 찾기
+            if DB_DIR.exists():
+                for file_path in DB_DIR.glob('data_*.xlsx'):
+                    # 파일명에서 날짜 추출
+                    match = re.search(r'data_\w+_(\d{8})', file_path.name)
+                    if match:
+                        date_str = match.group(1)  # YYYYMMDD
+                        db_files.append({
+                            'filename': file_path.name,
+                            'date': date_str
+                        })
+
+            # 날짜순 정렬
+            db_files.sort(key=lambda x: x['date'])
+
+            self.send_json_response({'files': db_files})
+        except Exception as e:
+            print(f"Error in api_get_db_files: {e}")
+            self.send_json_response({'error': str(e)}, 500)
+
+    def api_lookup_price(self):
+        """종목코드로 종가 조회 API"""
+        try:
+            # URL 파라미터에서 파일명과 종목코드 가져오기
+            parsed = urllib.parse.urlparse(self.path)
+            params = urllib.parse.parse_qs(parsed.query)
+            db_file = params.get('file', [None])[0]
+            stock_codes = params.get('codes', [''])[0].split(',')
+
+            if not db_file or not stock_codes:
+                self.send_json_response({'error': 'Missing parameters'}, 400)
+                return
+
+            db_path = DB_DIR / db_file
+            prices = {}
+
+            if db_path.exists() and HAS_OPENPYXL:
+                wb = load_workbook(db_path, data_only=True)
+                ws = wb.active
+
+                # 데이터 읽기 (종목코드, 종목명, 종가)
+                for row in ws.iter_rows(min_row=2, values_only=True):
+                    if row[0] and row[0] in stock_codes:
+                        prices[row[0]] = {
+                            'name': row[1] if len(row) > 1 else '',
+                            'price': float(row[2]) if len(row) > 2 and row[2] else 0
+                        }
+
+                wb.close()
+
+            self.send_json_response({'prices': prices})
+        except Exception as e:
+            print(f"Error in api_lookup_price: {e}")
             self.send_json_response({'error': str(e)}, 500)
 
     def api_rebalance(self):

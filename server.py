@@ -51,6 +51,10 @@ class TuesdayHandler(http.server.SimpleHTTPRequestHandler):
             self.serve_file(file_path)
         elif self.path.startswith('/api/data'):
             self.api_get_data()
+        elif self.path == '/api/datafiles':
+            self.api_list_datafiles()
+        elif self.path.startswith('/api/datafile'):
+            self.api_get_datafile()
         else:
             self.send_error(404)
 
@@ -318,6 +322,71 @@ class TuesdayHandler(http.server.SimpleHTTPRequestHandler):
             self.send_json_response({'portfolio': portfolio_data})
         except Exception as e:
             print(f"Error in api_rebalance: {e}")
+            self.send_json_response({'error': str(e)}, 500)
+
+    def api_list_datafiles(self):
+        """data_*.xlsx 파일 목록 API"""
+        try:
+            data_files = []
+
+            # db 디렉토리에서 data_*.xlsx 파일 찾기
+            if DB_DIR.exists():
+                for file in DB_DIR.glob('data_*.xlsx'):
+                    # 파일명에서 날짜 추출 (YYYYMMDD)
+                    match = re.search(r'data_\w+_(\d{8})', file.name)
+                    if match:
+                        date_str = match.group(1)
+                        data_files.append({
+                            'filename': file.name,
+                            'date': date_str
+                        })
+
+            # 날짜순으로 정렬 (최신순)
+            data_files.sort(key=lambda x: x['date'], reverse=True)
+
+            self.send_json_response({'files': data_files})
+        except Exception as e:
+            print(f"Error in api_list_datafiles: {e}")
+            self.send_json_response({'error': str(e)}, 500)
+
+    def api_get_datafile(self):
+        """특정 data_*.xlsx 파일 읽기 API (VLOOKUP용)"""
+        try:
+            # URL 파라미터에서 파일명 가져오기
+            parsed = urllib.parse.urlparse(self.path)
+            params = urllib.parse.parse_qs(parsed.query)
+            filename = params.get('filename', [''])[0]
+
+            if not filename:
+                self.send_json_response({'error': 'No filename specified'}, 400)
+                return
+
+            file_path = DB_DIR / filename
+
+            if not file_path.exists():
+                self.send_json_response({'error': 'File not found'}, 404)
+                return
+
+            data_rows = []
+
+            if HAS_OPENPYXL and filename.endswith('.xlsx'):
+                wb = load_workbook(file_path, data_only=True)
+                ws = wb.active
+
+                # 데이터 읽기 (A열: 종목코드, C열: 종가)
+                for row in ws.iter_rows(min_row=2, values_only=True):
+                    if row[0]:  # 종목코드가 있으면
+                        data_rows.append({
+                            '종목코드': str(row[0]),
+                            '종목명': row[1] if len(row) > 1 else '',
+                            '종가': row[2] if len(row) > 2 else 0
+                        })
+
+                wb.close()
+
+            self.send_json_response({'data': data_rows})
+        except Exception as e:
+            print(f"Error in api_get_datafile: {e}")
             self.send_json_response({'error': str(e)}, 500)
 
     def send_json_response(self, data, status=200):

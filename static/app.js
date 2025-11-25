@@ -13,6 +13,7 @@ let uploadedFileData = null;
 document.addEventListener('DOMContentLoaded', () => {
     initTabs();
     loadData();
+    loadDataFiles();
     drawBalanceChart();
 });
 
@@ -104,14 +105,43 @@ function updateROIFromFile(fileData) {
 
 // 날짜로 Balance 업데이트
 function updateBalanceFromDate(dateInfo) {
-    // 새로운 행 추가 또는 마지막 행 업데이트
-    if (data.balance.length === 0) {
-        data.balance.push(createEmptyBalanceRow());
-    }
+    // ROI 테이블에서 총합 계산
+    let totalInitial = 0;
+    let totalEval = 0;
 
-    const lastRow = data.balance[data.balance.length - 1];
-    lastRow['연도'] = dateInfo.year + '년';
-    lastRow['월'] = dateInfo.month + '월';
+    data.roi.forEach(row => {
+        const initial = parseFloat(row['초기투자금'] || 0);
+        const quantity = parseFloat(row['수량'] || 0);
+        const price = parseFloat(row['종가'] || 0);
+        const evaluation = quantity * price;
+
+        totalInitial += initial;
+        totalEval += evaluation;
+    });
+
+    const totalROI = totalInitial > 0 ? ((totalEval - totalInitial) / totalInitial * 100) : 0;
+
+    // 같은 연도/월의 행이 있는지 확인
+    const yearMonth = dateInfo.year + '년';
+    const month = dateInfo.month + '월';
+    const existingRow = data.balance.find(row => row['연도'] === yearMonth && row['월'] === month);
+
+    if (existingRow) {
+        // 기존 행 업데이트
+        existingRow['잔고'] = totalEval;
+        existingRow['수익률'] = totalROI.toFixed(1);
+    } else {
+        // 새 행 추가
+        data.balance.push({
+            '연도': yearMonth,
+            '월': month,
+            '투자원금': totalInitial,
+            '추가납입': 0,
+            '잔고': totalEval,
+            '수익률': totalROI.toFixed(1),
+            '기타': ''
+        });
+    }
 }
 
 // 데이터 로드
@@ -174,9 +204,9 @@ function renderROITable() {
         tr.innerHTML = `
             <td><input type="text" value="${row['종목코드'] || ''}" onchange="updateROI(${index}, '종목코드', this.value)"></td>
             <td><input type="text" value="${row['종목명'] || ''}" onchange="updateROI(${index}, '종목명', this.value)"></td>
-            <td><input type="number" value="${row['초기투자금'] || 0}" onchange="updateROI(${index}, '초기투자금', this.value)"></td>
+            <td><input type="text" value="${initial.toLocaleString()}" onchange="updateROI(${index}, '초기투자금', this.value.replace(/,/g, ''))"></td>
             <td><input type="number" value="${row['수량'] || 0}" onchange="updateROI(${index}, '수량', this.value)"></td>
-            <td><input type="number" value="${row['종가'] || 0}" onchange="updateROI(${index}, '종가', this.value)"></td>
+            <td><input type="text" value="${price.toLocaleString()}" onchange="updateROI(${index}, '종가', this.value.replace(/,/g, ''))"></td>
             <td>${formatCurrency(evaluation)}</td>
             <td class="${roi < 0 ? 'negative' : 'positive'}">${roi.toFixed(1)}%</td>
             <td><button class="delete-btn" onclick="deleteRow('roi', ${index})">❌</button></td>
@@ -564,4 +594,70 @@ function formatCurrency(num) {
 // 알림 표시
 function showNotification(message, type) {
     alert(message);
+}
+
+// Data 파일 목록 로드
+async function loadDataFiles() {
+    try {
+        const response = await fetch('/api/datafiles');
+        const result = await response.json();
+
+        const selector = document.getElementById('data-file-selector');
+        if (!selector) return;
+
+        // 기존 옵션 제거 (첫 번째 옵션 제외)
+        while (selector.options.length > 1) {
+            selector.remove(1);
+        }
+
+        // 파일 목록 추가
+        if (result.files && result.files.length > 0) {
+            result.files.forEach(file => {
+                const option = document.createElement('option');
+                option.value = file.filename;
+                option.textContent = file.date; // YYYYMMDD만 표시
+                selector.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading data files:', error);
+    }
+}
+
+// Data 파일 선택 시 VLOOKUP 수행
+async function loadDataFile(filename) {
+    if (!filename) return;
+
+    try {
+        const response = await fetch(`/api/datafile?filename=${encodeURIComponent(filename)}`);
+        const result = await response.json();
+
+        if (result.data) {
+            // VLOOKUP: 종목코드로 종가 업데이트
+            data.roi.forEach(row => {
+                const code = String(row['종목코드']);
+                if (!code) return;
+
+                // data 파일에서 종목코드 찾기
+                const match = result.data.find(d => String(d['종목코드']) === code);
+                if (match) {
+                    row['종가'] = parseFloat(match['종가']) || 0;
+                    // 평가금 재계산
+                    row['평가금'] = row['수량'] * row['종가'];
+                }
+            });
+
+            // 테이블 다시 렌더링
+            renderROITable();
+
+            // 포트폴리오 자동 업데이트
+            await performRebalancing();
+
+            showNotification('✅ DB에서 종가를 업데이트했습니다!', 'success');
+        } else {
+            showNotification('❌ 파일 로드 실패: ' + result.error, 'error');
+        }
+    } catch (error) {
+        showNotification('❌ 파일 로드 실패: ' + error.message, 'error');
+    }
 }

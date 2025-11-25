@@ -138,9 +138,32 @@ header p {
     margin-bottom: 20px;
 }
 
+.section-header .header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
 .section-header h2 {
     color: #333;
     font-size: 1.8rem;
+}
+
+#data-file-selector {
+    padding: 8px 12px;
+    border: 2px solid #667eea;
+    border-radius: 6px;
+    background: white;
+    color: #333;
+    font-size: 0.9rem;
+    cursor: pointer;
+    min-width: 150px;
+    transition: all 0.3s;
+}
+
+#data-file-selector:hover {
+    border-color: #764ba2;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
 .coming-soon {

@@ -237,9 +237,9 @@ function renderBalanceTable() {
         tr.innerHTML = `
             <td><input type="text" value="${row['연도'] || ''}" onchange="updateBalance(${index}, '연도', this.value)"></td>
             <td><input type="text" value="${row['월'] || ''}" onchange="updateBalance(${index}, '월', this.value)"></td>
-            <td><input type="number" value="${row['투자원금'] || 0}" onchange="updateBalance(${index}, '투자원금', this.value)" readonly></td>
+            <td>${principal.toLocaleString()}</td>
             <td><input type="number" value="${row['추가납입'] || 0}" onchange="updateBalance(${index}, '추가납입', this.value)"></td>
-            <td><input type="number" value="${row['잔고'] || 0}" onchange="updateBalance(${index}, '잔고', this.value)" readonly></td>
+            <td>${balance.toLocaleString()}</td>
             <td class="${returnRateClass}">${returnRate.toFixed(1)}%</td>
             <td><input type="text" class="note-input" value="${row['기타'] || ''}" onchange="updateBalance(${index}, '기타', this.value)"></td>
             <td><button class="delete-btn" onclick="deleteRow('balance', ${index})">❌</button></td>

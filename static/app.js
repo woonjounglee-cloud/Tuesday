@@ -151,7 +151,20 @@ async function handleFileUpload(type, file) {
             renderROITable();
             renderBalanceTable();
 
-            showNotification('✅ 파일이 업로드되었습니다!', 'success');
+            // DB 파일 목록 새로고침
+            await loadDBFiles();
+
+            // 업로드된 파일이 저장된 경우, DB 선택자에서 자동 선택
+            if (result.savedFilename) {
+                const selector = document.getElementById('db-selector');
+                if (selector) {
+                    selector.value = result.savedFilename;
+                    // 선택된 파일로 종가 업데이트
+                    await handleDBChange(result.savedFilename);
+                }
+            }
+
+            showNotification('✅ 파일이 업로드되고 DB에 저장되었습니다!', 'success');
         } else {
             showNotification('❌ 업로드 실패: ' + result.error, 'error');
         }

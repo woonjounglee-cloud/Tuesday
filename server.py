@@ -255,6 +255,7 @@ class TuesdayHandler(http.server.SimpleHTTPRequestHandler):
 
             # Excel 파일 처리
             result_data = {'rows': []}
+            saved_filename = None
 
             if HAS_OPENPYXL and (filename.endswith('.xlsx') or filename.endswith('.xls')):
                 # 임시 파일로 저장
@@ -272,12 +273,34 @@ class TuesdayHandler(http.server.SimpleHTTPRequestHandler):
                             result_data['rows'].append(list(row))
 
                     wb.close()
+
+                    # db 폴더에 파일 복사
+                    DB_DIR.mkdir(exist_ok=True)
+
+                    # 파일명이 data_*.xlsx 형식이 아니면 data_ 접두사 추가
+                    if not filename.startswith('data_'):
+                        # 날짜 정보가 있으면 사용, 없으면 현재 날짜 사용
+                        if date_info:
+                            saved_filename = f"data_ETF_{date_info['year']}{date_info['month']}{date_info.get('day', '01')}.xlsx"
+                        else:
+                            from datetime import datetime
+                            today = datetime.now()
+                            saved_filename = f"data_ETF_{today.strftime('%Y%m%d')}.xlsx"
+                    else:
+                        saved_filename = filename
+
+                    # db 폴더에 저장
+                    db_file_path = DB_DIR / saved_filename
+                    with open(db_file_path, 'wb') as f:
+                        f.write(file_data)
+
                 finally:
                     os.unlink(tmp_path)
 
             self.send_json_response({
                 'success': True,
                 'filename': filename,
+                'savedFilename': saved_filename,
                 'date': date_info,
                 'fileData': result_data
             })

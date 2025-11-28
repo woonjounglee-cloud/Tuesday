@@ -132,11 +132,19 @@ class TuesdayHandler(http.server.SimpleHTTPRequestHandler):
                     ws = wb['Portfolio']
                     # 헤더 읽기
                     headers = [cell for cell in next(ws.iter_rows(min_row=1, max_row=1, values_only=True))]
-                    data['portfolio'] = [
-                        {headers[i]: cell for i, cell in enumerate(row) if i < len(headers)}
-                        for row in ws.iter_rows(min_row=2, values_only=True)
-                        if any(cell is not None for cell in row)
-                    ]
+                    portfolio_data = []
+                    for row in ws.iter_rows(min_row=2, values_only=True):
+                        if any(cell is not None for cell in row):
+                            row_dict = {headers[i]: cell for i, cell in enumerate(row) if i < len(headers)}
+                            # 세팅비중과 현재비중이 소수점 형태(< 2)인 경우 100 곱하기
+                            if '세팅비중' in row_dict and row_dict['세팅비중'] is not None:
+                                if isinstance(row_dict['세팅비중'], (int, float)) and row_dict['세팅비중'] < 2:
+                                    row_dict['세팅비중'] = row_dict['세팅비중'] * 100
+                            if '현재비중' in row_dict and row_dict['현재비중'] is not None:
+                                if isinstance(row_dict['현재비중'], (int, float)) and row_dict['현재비중'] < 2:
+                                    row_dict['현재비중'] = row_dict['현재비중'] * 100
+                            portfolio_data.append(row_dict)
+                    data['portfolio'] = portfolio_data
 
             self.send_json_response(data)
         except Exception as e:

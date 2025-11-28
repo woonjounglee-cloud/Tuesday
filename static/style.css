@@ -355,8 +355,8 @@ tbody tr:hover {
 /* 삭제 버튼 크기 축소 */
 .delete-btn {
     background: #dc3545;
-    padding: 4px 8px;
-    font-size: 0.72rem;
+    padding: 3px 6px;
+    font-size: 0.576rem;
 }
 
 .delete-btn:hover {

@@ -475,6 +475,9 @@ function addRow(table) {
 
         data.balance.push(newRow);
         renderBalanceTable();
+
+        // 자동 저장
+        saveData();
     } else if (table === 'portfolio') {
         newRow = createEmptyPortfolioRow();
         data.portfolio.push(newRow);

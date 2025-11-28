@@ -398,13 +398,11 @@ function renderBalanceTable() {
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><input type="text" value="${row['연도'] || ''}" onchange="updateBalance(${index}, '연도', this.value)"></td>
-            <td><input type="text" value="${row['월'] || ''}" onchange="updateBalance(${index}, '월', this.value)"></td>
+            <td><input type="text" value="${row['날짜'] || ''}" onchange="updateBalance(${index}, '날짜', this.value)"></td>
             <td>${principal.toLocaleString()}</td>
             <td><input type="number" value="${row['추가납입'] || 0}" onchange="updateBalance(${index}, '추가납입', this.value)"></td>
             <td>${balance.toLocaleString()}</td>
             <td class="${returnRateClass}">${returnRate.toFixed(1)}%</td>
-            <td><input type="text" class="note-input" value="${row['기타'] || ''}" onchange="updateBalance(${index}, '기타', this.value)"></td>
             <td><button class="delete-btn" onclick="deleteRow('balance', ${index})">❌</button></td>
         `;
         tbody.appendChild(tr);
@@ -500,6 +498,31 @@ function addRow(table) {
         renderROITable();
     } else if (table === 'balance') {
         newRow = createEmptyBalanceRow();
+
+        // DB 파일에서 날짜 추출 (data_XXXX_YYYYMMDD.xlsx 형식)
+        if (selectedDBFile) {
+            const match = selectedDBFile.match(/data_[^_]+_(\d{8})\.xlsx/);
+            if (match) {
+                newRow['날짜'] = match[1]; // YYYYMMDD
+            }
+        }
+
+        // ROI 테이블 합계 자동 입력
+        const prefix = getTablePrefix();
+        const totalInitialEl = document.getElementById(`${prefix}total-initial`);
+        const totalEvalEl = document.getElementById(`${prefix}total-eval`);
+        const totalRoiEl = document.getElementById(`${prefix}total-roi`);
+
+        if (totalInitialEl) {
+            newRow['투자원금'] = parseFloat(totalInitialEl.textContent.replace(/,/g, '')) || 0;
+        }
+        if (totalEvalEl) {
+            newRow['잔고'] = parseFloat(totalEvalEl.textContent.replace(/,/g, '')) || 0;
+        }
+        if (totalRoiEl) {
+            newRow['수익률'] = totalRoiEl.textContent;
+        }
+
         data.balance.push(newRow);
         renderBalanceTable();
     } else if (table === 'portfolio') {
@@ -595,7 +618,7 @@ function drawBalanceChart() {
 
     // 데이터 준비
     const balances = data.balance.map(row => parseFloat(row['잔고'] || 0));
-    const labels = data.balance.map(row => `${row['연도'] || ''} ${row['월'] || ''}`);
+    const labels = data.balance.map(row => row['날짜'] || '');
 
     // Y축 범위 설정: 16,000,000 ~ 최대값 (500,000 단위)
     const minBalance = 16000000;
@@ -697,13 +720,11 @@ function createEmptyROIRow() {
 
 function createEmptyBalanceRow() {
     return {
-        '연도': '',
-        '월': '',
+        '날짜': '',
         '투자원금': 0,
         '추가납입': 0,
         '잔고': 0,
-        '수익률': '0%',
-        '기타': ''
+        '수익률': '0%'
     };
 }
 

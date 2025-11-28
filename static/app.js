@@ -124,6 +124,9 @@ async function handleDBChange(filename) {
             updatePortfolioFromROI();  // 포트폴리오도 자동 업데이트
             renderPortfolioTable();
 
+            // 자동 저장
+            await saveData();
+
             showNotification('✅ 종가가 업데이트되었습니다!', 'success');
         }
     } catch (error) {
@@ -249,7 +252,11 @@ async function loadData(showMessage = false) {
 
         renderROITable();
         renderBalanceTable();
+
+        // 포트폴리오 현재비중 및 녹색매수 재계산
+        updatePortfolioFromROI();
         renderPortfolioTable();
+
         drawBalanceChart();
 
         if (showMessage) {
@@ -417,6 +424,10 @@ function renderPortfolioTable() {
 function updateROI(index, field, value) {
     data.roi[index][field] = field === '종목코드' || field === '종목명' ? value : parseFloat(value) || 0;
     renderROITable();
+
+    // ROI 변경 시 포트폴리오도 업데이트
+    updatePortfolioFromROI();
+    renderPortfolioTable();
 }
 
 // Balance 데이터 업데이트
@@ -430,7 +441,16 @@ function updatePortfolio(index, field, value) {
     data.portfolio[index][field] = field === '종목코드' || field === '종목명' || field === '자산군' || field === '구분'
         ? value
         : parseFloat(value) || 0;
+
+    // 세팅비중 변경 시 녹색매수 재계산
+    if (field === '세팅비중') {
+        updatePortfolioFromROI();
+    }
+
     renderPortfolioTable();
+
+    // 자동 저장
+    saveData();
 }
 
 // 행 추가

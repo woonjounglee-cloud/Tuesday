@@ -417,7 +417,7 @@ tbody tr:hover {
 
 #portfolio-table td:nth-child(7), #wj-isa-portfolio-table td:nth-child(7),
 #portfolio-table tfoot td:nth-child(7), #wj-isa-portfolio-table tfoot td:nth-child(7) {
-    font-size: 1.232rem;
+    font-size: 1rem;
 }
 
 input {

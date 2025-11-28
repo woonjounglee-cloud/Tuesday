@@ -451,21 +451,27 @@ function addRow(table) {
             }
         }
 
-        // ROI 테이블 합계 자동 입력
-        const prefix = getTablePrefix();
-        const totalInitialEl = document.getElementById(`${prefix}total-initial`);
-        const totalEvalEl = document.getElementById(`${prefix}total-eval`);
-        const totalRoiEl = document.getElementById(`${prefix}total-roi`);
+        // ROI 테이블에서 직접 합계 계산
+        let totalInitial = 0;
+        let totalEval = 0;
 
-        if (totalInitialEl) {
-            newRow['투자원금'] = parseFloat(totalInitialEl.textContent.replace(/,/g, '')) || 0;
-        }
-        if (totalEvalEl) {
-            newRow['잔고'] = parseFloat(totalEvalEl.textContent.replace(/,/g, '')) || 0;
-        }
-        if (totalRoiEl) {
-            newRow['수익률'] = totalRoiEl.textContent;
-        }
+        data.roi.forEach(row => {
+            const quantity = parseFloat(row['수량'] || 0);
+            const price = parseFloat(row['종가'] || 0);
+            const evaluation = quantity * price;
+            const initial = parseFloat(row['초기투자금'] || 0);
+
+            totalEval += evaluation;
+            totalInitial += initial;
+        });
+
+        // 수익률 계산
+        const roi = totalInitial > 0 ? ((totalEval - totalInitial) / totalInitial * 100) : 0;
+
+        // Balance 행에 값 설정
+        newRow['투자원금'] = totalInitial;
+        newRow['잔고'] = totalEval;
+        newRow['수익률'] = roi.toFixed(1) + '%';
 
         data.balance.push(newRow);
         renderBalanceTable();

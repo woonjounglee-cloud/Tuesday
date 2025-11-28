@@ -445,7 +445,7 @@ function renderPortfolioTable() {
             <td><input type="text" value="${row['종목명'] || ''}" onchange="updatePortfolio(${index}, '종목명', this.value)"></td>
             <td><input type="text" value="${row['자산군'] || ''}" onchange="updatePortfolio(${index}, '자산군', this.value)"></td>
             <td><input type="text" value="${row['구분'] || ''}" onchange="updatePortfolio(${index}, '구분', this.value)"></td>
-            <td><input type="number" step="0.1" value="${settingRatio.toFixed(1)}" onchange="updatePortfolio(${index}, '세팅비중', this.value)"></td>
+            <td><input type="text" value="${settingRatio.toFixed(1)}%" onchange="updatePortfolio(${index}, '세팅비중', this.value.replace('%', ''))"></td>
             <td>${currentRatio.toFixed(1)}%</td>
             <td class="${rebalancingClass}">${rebalancingText}</td>
             <td><button class="delete-btn" onclick="deleteRow('portfolio', ${index})">❌</button></td>

@@ -369,6 +369,11 @@ tbody tr:hover {
     font-weight: bold;
 }
 
+/* ROI 테이블 합계: 초기투자금 가운데 정렬 */
+#roi-table tfoot td:nth-child(3), #wj-isa-roi-table tfoot td:nth-child(3) {
+    text-align: center;
+}
+
 #roi-table td:nth-child(7), #wj-isa-roi-table td:nth-child(7) {
     font-size: 0.88rem;
 }
@@ -387,6 +392,11 @@ tbody tr:hover {
 #portfolio-table th:nth-child(5), #wj-isa-portfolio-table th:nth-child(5),
 #portfolio-table th:nth-child(6), #wj-isa-portfolio-table th:nth-child(6) {
     white-space: nowrap;
+}
+
+/* Portfolio 테이블 합계: 세팅비중 가운데 정렬 */
+#portfolio-table tfoot td:nth-child(5), #wj-isa-portfolio-table tfoot td:nth-child(5) {
+    text-align: center;
 }
 
 #portfolio-table td:nth-child(7), #wj-isa-portfolio-table td:nth-child(7),

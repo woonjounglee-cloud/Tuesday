@@ -298,13 +298,13 @@ table {
 }
 
 /* Portfolio 테이블 컬럼 너비 */
-#portfolio-table th:nth-child(1), #wj-isa-portfolio-table th:nth-child(1) { width: 18%; }  /* 종목코드 */
-#portfolio-table th:nth-child(2), #wj-isa-portfolio-table th:nth-child(2) { width: 24%; }  /* 종목명 */
-#portfolio-table th:nth-child(3), #wj-isa-portfolio-table th:nth-child(3) { width: 9%; }  /* 자산군 */
-#portfolio-table th:nth-child(4), #wj-isa-portfolio-table th:nth-child(4) { width: 10%; }  /* 구분 */
+#portfolio-table th:nth-child(1), #wj-isa-portfolio-table th:nth-child(1) { width: 8%; }  /* 종목코드 */
+#portfolio-table th:nth-child(2), #wj-isa-portfolio-table th:nth-child(2) { width: 30%; }  /* 종목명 */
+#portfolio-table th:nth-child(3), #wj-isa-portfolio-table th:nth-child(3) { width: 10%; }  /* 자산군 */
+#portfolio-table th:nth-child(4), #wj-isa-portfolio-table th:nth-child(4) { width: 11%; }  /* 구분 */
 #portfolio-table th:nth-child(5), #wj-isa-portfolio-table th:nth-child(5) { width: 10%; }  /* 세팅비중 */
 #portfolio-table th:nth-child(6), #wj-isa-portfolio-table th:nth-child(6) { width: 10%; }  /* 현재비중 */
-#portfolio-table th:nth-child(7), #wj-isa-portfolio-table th:nth-child(7) { width: 11%; }  /* 녹색매수 */
+#portfolio-table th:nth-child(7), #wj-isa-portfolio-table th:nth-child(7) { width: 13%; }  /* 녹색매수 */
 #portfolio-table th:nth-child(8), #wj-isa-portfolio-table th:nth-child(8) { width: 8%; }  /* 삭제 */
 
 #portfolio-table input, #wj-isa-portfolio-table input {
@@ -417,7 +417,7 @@ tbody tr:hover {
 
 #portfolio-table td:nth-child(7), #wj-isa-portfolio-table td:nth-child(7),
 #portfolio-table tfoot td:nth-child(7), #wj-isa-portfolio-table tfoot td:nth-child(7) {
-    font-size: 0.88rem;
+    font-size: 1.232rem;
 }
 
 input {

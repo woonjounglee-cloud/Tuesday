@@ -11,10 +11,10 @@ let uploadedFileData = null;
 let selectedDBFile = null;  // 선택된 DB 파일
 
 // 페이지 로드 시 실행
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     initTabs();
+    await loadData();  // 데이터를 먼저 로드
     loadDBFiles();
-    loadData();
     drawBalanceChart();
     drawPortfolioCharts();
 });
@@ -347,7 +347,6 @@ function renderROITable() {
     // 총합 업데이트
     const totalROI = totalInitial > 0 ? ((totalEval - totalInitial) / totalInitial * 100) : 0;
 
-    const prefix = getTablePrefix();
     const totalInitialEl = document.getElementById(`${prefix}total-initial`);
     const totalEvalEl = document.getElementById(`${prefix}total-eval`);
     const totalRoiEl = document.getElementById(`${prefix}total-roi`);
@@ -455,7 +454,6 @@ function renderPortfolioTable() {
     });
 
     // 총합 업데이트
-    const prefix = getTablePrefix();
     const totalSettingEl = document.getElementById(`${prefix}total-setting`);
     const totalCurrentEl = document.getElementById(`${prefix}total-current`);
 

@@ -334,6 +334,12 @@ td {
     text-align: left;
 }
 
+/* 종목코드 열은 가운데 정렬 */
+#roi-table td:nth-child(1), #wj-isa-roi-table td:nth-child(1),
+#portfolio-table td:nth-child(1), #wj-isa-portfolio-table td:nth-child(1) {
+    text-align: center;
+}
+
 /* ROI 테이블: 초기투자금, 수량, 종가 입력 필드는 가운데 정렬 */
 #roi-table td:nth-child(3) input, #wj-isa-roi-table td:nth-child(3) input,
 #roi-table td:nth-child(4) input, #wj-isa-roi-table td:nth-child(4) input,

@@ -91,10 +91,11 @@ async function handleDBChange(filename) {
 
     selectedDBFile = filename;
 
-    // 종목코드 수집
+    // 종목코드 수집 (문자열로 변환하여 trim)
     const stockCodes = data.roi
         .map(row => row['종목코드'])
-        .filter(code => code && code.trim() !== '');
+        .filter(code => code && String(code).trim() !== '')
+        .map(code => String(code).trim());
 
     if (stockCodes.length === 0) {
         showNotification('⚠️ 종목코드가 없습니다.', 'warning');
@@ -109,7 +110,7 @@ async function handleDBChange(filename) {
         if (result.prices) {
             // ROI 데이터 업데이트
             data.roi.forEach(row => {
-                const code = row['종목코드'];
+                const code = String(row['종목코드'] || '').trim();
                 if (code && result.prices[code]) {
                     row['종가'] = result.prices[code].price;
                     // 종목명도 업데이트 (있는 경우)
@@ -167,7 +168,8 @@ async function handleFileUpload(type, file) {
 
             // 업로드된 파일이 저장된 경우, DB 선택자에서 자동 선택
             if (result.savedFilename) {
-                const selector = document.getElementById('db-selector');
+                const prefix = getTablePrefix();
+                const selector = document.getElementById(`${prefix}db-selector`);
                 if (selector) {
                     selector.value = result.savedFilename;
                     // 선택된 파일로 종가 업데이트

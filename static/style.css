@@ -302,11 +302,11 @@ table {
 #portfolio-table th:nth-child(8), #wj-isa-portfolio-table th:nth-child(8) { width: 8%; }  /* 삭제 */
 
 #portfolio-table input, #wj-isa-portfolio-table input {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
 }
 
 #portfolio-table td:not(:has(input)), #wj-isa-portfolio-table td:not(:has(input)) {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
 }
 
 thead {
@@ -332,6 +332,13 @@ td {
 #roi-table td:nth-child(2), #wj-isa-roi-table td:nth-child(2),
 #portfolio-table td:nth-child(2), #wj-isa-portfolio-table td:nth-child(2) {
     text-align: left;
+}
+
+/* ROI 테이블: 초기투자금, 수량, 종가 입력 필드는 가운데 정렬 */
+#roi-table td:nth-child(3) input, #wj-isa-roi-table td:nth-child(3) input,
+#roi-table td:nth-child(4) input, #wj-isa-roi-table td:nth-child(4) input,
+#roi-table td:nth-child(5) input, #wj-isa-roi-table td:nth-child(5) input {
+    text-align: center;
 }
 
 /* 포트폴리오 테이블: 자산군, 구분, 세팅비중 입력 필드는 가운데 정렬 */

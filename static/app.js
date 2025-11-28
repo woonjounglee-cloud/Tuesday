@@ -319,22 +319,6 @@ function renderROITable() {
         totalRoiEl.textContent = totalROI.toFixed(1) + '%';
         totalRoiEl.className = totalROI < 0 ? 'negative' : 'positive';
     }
-
-    // Balance 자동 업데이트
-    updateBalanceFromROI(totalInitial, totalEval);
-}
-
-// ROI 데이터로 Balance 업데이트
-function updateBalanceFromROI(totalInitial, totalEval) {
-    if (data.balance.length > 0) {
-        const lastRow = data.balance[data.balance.length - 1];
-        lastRow['투자원금'] = totalInitial;
-        lastRow['잔고'] = totalEval;
-
-        // 수익률 계산
-        const roi = totalInitial > 0 ? ((totalEval - totalInitial) / totalInitial * 100) : 0;
-        lastRow['수익률'] = roi.toFixed(1) + '%';
-    }
 }
 
 // Balance 테이블 렌더링

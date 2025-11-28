@@ -44,7 +44,16 @@ function switchTab(tabName, dbName) {
     if (dbName) {
         currentDB = dbName;
         loadData(false); // 조용히 로드
+        loadDBFiles(); // DB 파일 목록도 새로고침
+        drawBalanceChart();
+        drawPortfolioCharts();
     }
+}
+
+// 현재 탭에 맞는 element ID 접두사 가져오기
+function getTablePrefix() {
+    if (currentDB === 'WJ_ISA') return 'wj-isa-';
+    return '';
 }
 
 // DB 파일 목록 로드
@@ -53,7 +62,8 @@ async function loadDBFiles() {
         const response = await fetch('/api/db-files');
         const result = await response.json();
 
-        const selector = document.getElementById('db-selector');
+        const prefix = getTablePrefix();
+        const selector = document.getElementById(`${prefix}db-selector`);
         if (!selector) return;
 
         // 기존 옵션 유지하고 새 옵션 추가
@@ -291,7 +301,8 @@ async function loadData(showMessage = false) {
 
 // ROI 테이블 렌더링
 function renderROITable() {
-    const tbody = document.querySelector('#roi-table tbody');
+    const prefix = getTablePrefix();
+    const tbody = document.querySelector(`#${prefix}roi-table tbody`);
     if (!tbody) return;
 
     tbody.innerHTML = '';
@@ -336,9 +347,10 @@ function renderROITable() {
     // 총합 업데이트
     const totalROI = totalInitial > 0 ? ((totalEval - totalInitial) / totalInitial * 100) : 0;
 
-    const totalInitialEl = document.getElementById('total-initial');
-    const totalEvalEl = document.getElementById('total-eval');
-    const totalRoiEl = document.getElementById('total-roi');
+    const prefix = getTablePrefix();
+    const totalInitialEl = document.getElementById(`${prefix}total-initial`);
+    const totalEvalEl = document.getElementById(`${prefix}total-eval`);
+    const totalRoiEl = document.getElementById(`${prefix}total-roi`);
 
     if (totalInitialEl) totalInitialEl.textContent = formatCurrency(totalInitial);
     if (totalEvalEl) totalEvalEl.textContent = formatCurrency(totalEval);
@@ -366,7 +378,8 @@ function updateBalanceFromROI(totalInitial, totalEval) {
 
 // Balance 테이블 렌더링
 function renderBalanceTable() {
-    const tbody = document.querySelector('#balance-table tbody');
+    const prefix = getTablePrefix();
+    const tbody = document.querySelector(`#${prefix}balance-table tbody`);
     if (!tbody) return;
 
     tbody.innerHTML = '';
@@ -401,7 +414,8 @@ function renderBalanceTable() {
 
 // Portfolio 테이블 렌더링
 function renderPortfolioTable() {
-    const tbody = document.querySelector('#portfolio-table tbody');
+    const prefix = getTablePrefix();
+    const tbody = document.querySelector(`#${prefix}portfolio-table tbody`);
     if (!tbody) return;
 
     tbody.innerHTML = '';
@@ -441,8 +455,9 @@ function renderPortfolioTable() {
     });
 
     // 총합 업데이트
-    const totalSettingEl = document.getElementById('total-setting');
-    const totalCurrentEl = document.getElementById('total-current');
+    const prefix = getTablePrefix();
+    const totalSettingEl = document.getElementById(`${prefix}total-setting`);
+    const totalCurrentEl = document.getElementById(`${prefix}total-current`);
 
     if (totalSettingEl) {
         totalSettingEl.textContent = totalSetting.toFixed(1) + '%';
@@ -557,7 +572,8 @@ async function performRebalancing() {
 
 // Balance 차트 그리기
 function drawBalanceChart() {
-    const canvas = document.getElementById('balance-chart');
+    const prefix = getTablePrefix();
+    const canvas = document.getElementById(`${prefix}balance-chart`);
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
@@ -746,8 +762,9 @@ function aggregateByAssetClass() {
 
 // 포트폴리오 원형 차트 그리기
 function drawPortfolioCharts() {
-    const settingCanvas = document.getElementById('setting-pie-chart');
-    const currentCanvas = document.getElementById('current-pie-chart');
+    const prefix = getTablePrefix();
+    const settingCanvas = document.getElementById(`${prefix}setting-pie-chart`);
+    const currentCanvas = document.getElementById(`${prefix}current-pie-chart`);
 
     if (!settingCanvas || !currentCanvas) return;
 

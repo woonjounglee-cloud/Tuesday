@@ -177,9 +177,132 @@
 
         <!-- WJ - ISA Tab -->
         <div id="wj-isa-tab" class="tab-content">
-            <div class="coming-soon">
-                <h2>🚧 WJ - ISA</h2>
-                <p>준비 중입니다...</p>
+
+            <!-- ROI Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>📈 ROI (Return on Investment)</h2>
+                    <div class="button-group">
+                        <select id="wj-isa-db-selector" onchange="handleDBChange(this.value)">
+                            <option value="">DB 선택</option>
+                        </select>
+                        <button onclick="addRow('roi')">➕ 행 추가</button>
+                        <button onclick="saveData()">💾 저장</button>
+                        <button onclick="loadData(true)">🔄 새로고침</button>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table id="wj-isa-roi-table">
+                        <thead>
+                            <tr>
+                                <th>종목코드</th>
+                                <th>종목명</th>
+                                <th>초기투자금</th>
+                                <th>수량</th>
+                                <th>종가</th>
+                                <th>평가금</th>
+                                <th>수익률</th>
+                                <th>삭제</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <tfoot>
+                            <tr class="summary">
+                                <td colspan="2">합계</td>
+                                <td id="wj-isa-total-initial">0</td>
+                                <td></td>
+                                <td></td>
+                                <td id="wj-isa-total-eval">0</td>
+                                <td id="wj-isa-total-roi">0%</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Balance Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>💰 Balance (잔고 현황)</h2>
+                    <div class="button-group">
+                        <button onclick="addRow('balance')">➕ 행 추가</button>
+                    </div>
+                </div>
+
+                <div class="balance-container">
+                    <div class="table-wrapper balance-table-wrapper">
+                        <table id="wj-isa-balance-table">
+                            <thead>
+                                <tr>
+                                    <th>연도</th>
+                                    <th>월</th>
+                                    <th>투자원금</th>
+                                    <th>추가납입</th>
+                                    <th>잔고</th>
+                                    <th>수익률</th>
+                                    <th class="note-col">기타</th>
+                                    <th>삭제</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="chart-wrapper">
+                        <canvas id="wj-isa-balance-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Section -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>🎯 Portfolio (포트폴리오)</h2>
+                    <div class="button-group">
+                        <button onclick="performRebalancing()">🔄 Rebalancing</button>
+                        <button onclick="addRow('portfolio')">➕ 행 추가</button>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table id="wj-isa-portfolio-table">
+                        <thead>
+                            <tr>
+                                <th>종목코드</th>
+                                <th>종목명</th>
+                                <th>자산군</th>
+                                <th>구분</th>
+                                <th>세팅비중(%)</th>
+                                <th>현재비중(%)</th>
+                                <th>녹색매수</th>
+                                <th>삭제</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <tfoot>
+                            <tr class="summary">
+                                <td colspan="4">합계</td>
+                                <td id="wj-isa-total-setting">0%</td>
+                                <td id="wj-isa-total-current">0%</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Portfolio Charts Section -->
+                <div class="portfolio-charts-container">
+                    <div class="chart-box">
+                        <h3>자산군별 세팅비중</h3>
+                        <canvas id="wj-isa-setting-pie-chart"></canvas>
+                    </div>
+                    <div class="chart-box">
+                        <h3>자산군별 현재비중</h3>
+                        <canvas id="wj-isa-current-pie-chart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
 

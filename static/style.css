@@ -284,11 +284,17 @@ table {
 }
 
 #balance-table input, #wj-isa-balance-table input {
-    font-size: 0.8rem;
+    font-size: 1.04rem;
 }
 
 #balance-table td:not(:has(input)), #wj-isa-balance-table td:not(:has(input)) {
-    font-size: 0.8rem;
+    font-size: 1.04rem;
+}
+
+/* Balance 테이블: 날짜, 추가납입 입력 필드는 가운데 정렬 */
+#balance-table td:nth-child(1) input, #wj-isa-balance-table td:nth-child(1) input,
+#balance-table td:nth-child(3) input, #wj-isa-balance-table td:nth-child(3) input {
+    text-align: center;
 }
 
 /* Portfolio 테이블 컬럼 너비 */

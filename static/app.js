@@ -155,11 +155,6 @@ async function handleFileUpload(type, file) {
             // ROI 데이터 자동 채우기
             updateROIFromFile(uploadedFileData);
 
-            // Balance에 새 행 추가
-            if (result.date) {
-                addBalanceRowFromUpload(result.date);
-            }
-
             renderROITable();
             renderBalanceTable();
 
@@ -201,41 +196,6 @@ function updateROIFromFile(fileData) {
             row['종가'] = parseFloat(fileRow[2]) || row['종가'];
         }
     });
-}
-
-// Balance에 새 행 추가 (ETF 업로드 시)
-function addBalanceRowFromUpload(dateInfo) {
-    if (!dateInfo || !dateInfo.year || !dateInfo.month) return;
-
-    // ROI 테이블에서 총합 계산
-    let totalEval = 0;
-    let totalInitial = 0;
-
-    data.roi.forEach(row => {
-        const quantity = parseFloat(row['수량'] || 0);
-        const price = parseFloat(row['종가'] || 0);
-        const evaluation = quantity * price;
-        const initial = parseFloat(row['초기투자금'] || 0);
-
-        totalEval += evaluation;
-        totalInitial += initial;
-    });
-
-    // 수익률 계산
-    const roi = totalInitial > 0 ? ((totalEval - totalInitial) / totalInitial * 100) : 0;
-
-    // 새 행 추가
-    const newRow = {
-        '연도': dateInfo.year + '년',
-        '월': dateInfo.month + '월',
-        '투자원금': totalInitial,
-        '추가납입': 0,
-        '잔고': totalEval,
-        '수익률': roi.toFixed(1) + '%',
-        '기타': ''
-    };
-
-    data.balance.push(newRow);
 }
 
 // 포트폴리오 테이블 업데이트 (ROI 기반)

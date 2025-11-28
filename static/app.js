@@ -848,26 +848,23 @@ function drawPieChart(canvas, dataArray, colors, title) {
         currentAngle = endAngle;
     });
 
-    // 범례 그리기
-    const legendY = height - 40;
-    const legendItemWidth = width / Math.min(filteredData.length, 3);
-    const legendRows = Math.ceil(filteredData.length / 3);
+    // 범례 그리기 (한 줄로)
+    const legendY = height - 20;
+    const legendItemWidth = width / filteredData.length;
 
     filteredData.forEach((item, index) => {
-        const row = Math.floor(index / 3);
-        const col = index % 3;
-        const x = col * legendItemWidth + 20;
-        const y = legendY + row * 25;
+        const x = index * legendItemWidth + 10;
+        const y = legendY;
 
         // 색상 박스
         ctx.fillStyle = colors[index % colors.length];
-        ctx.fillRect(x, y - 8, 15, 15);
+        ctx.fillRect(x, y - 8, 12, 12);
 
         // 텍스트
-        ctx.font = '12px Arial';
+        ctx.font = '11px Arial';
         ctx.fillStyle = '#333';
         ctx.textAlign = 'left';
-        ctx.fillText(item.name, x + 20, y);
+        ctx.fillText(item.name, x + 16, y);
     });
 }
 

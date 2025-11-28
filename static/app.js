@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadDBFiles();
     loadData();
     drawBalanceChart();
+    drawPortfolioCharts();
 });
 
 // 탭 초기화
@@ -450,6 +451,9 @@ function renderPortfolioTable() {
     if (totalCurrentEl) {
         totalCurrentEl.textContent = totalCurrent.toFixed(1) + '%';
     }
+
+    // 차트 업데이트
+    drawPortfolioCharts();
 }
 
 // ROI 데이터 업데이트
@@ -715,6 +719,156 @@ function formatNumber(num) {
         minimumFractionDigits: 0,
         maximumFractionDigits: 2
     }).format(num);
+}
+
+// 자산군별 데이터 집계
+function aggregateByAssetClass() {
+    const assetGroups = {};
+
+    data.portfolio.forEach(row => {
+        const assetClass = row['자산군'] || '미분류';
+        const settingRatio = parseFloat(row['세팅비중'] || 0);
+        const currentRatio = parseFloat(row['현재비중'] || 0);
+
+        if (!assetGroups[assetClass]) {
+            assetGroups[assetClass] = {
+                setting: 0,
+                current: 0
+            };
+        }
+
+        assetGroups[assetClass].setting += settingRatio;
+        assetGroups[assetClass].current += currentRatio;
+    });
+
+    return assetGroups;
+}
+
+// 포트폴리오 원형 차트 그리기
+function drawPortfolioCharts() {
+    const settingCanvas = document.getElementById('setting-pie-chart');
+    const currentCanvas = document.getElementById('current-pie-chart');
+
+    if (!settingCanvas || !currentCanvas) return;
+
+    const assetGroups = aggregateByAssetClass();
+    const assetClasses = Object.keys(assetGroups);
+
+    if (assetClasses.length === 0) return;
+
+    // 색상 팔레트
+    const colors = [
+        '#667eea', '#764ba2', '#f093fb', '#4facfe',
+        '#43e97b', '#fa709a', '#fee140', '#30cfd0',
+        '#a8edea', '#fed6e3', '#c471f5', '#12c2e9'
+    ];
+
+    // 세팅비중 차트
+    drawPieChart(
+        settingCanvas,
+        assetClasses.map(name => ({ name, value: assetGroups[name].setting })),
+        colors,
+        '세팅비중'
+    );
+
+    // 현재비중 차트
+    drawPieChart(
+        currentCanvas,
+        assetClasses.map(name => ({ name, value: assetGroups[name].current })),
+        colors,
+        '현재비중'
+    );
+}
+
+// 원형 차트 그리기 함수
+function drawPieChart(canvas, dataArray, colors, title) {
+    const ctx = canvas.getContext('2d');
+    const width = 350;
+    const height = 350;
+    canvas.width = width;
+    canvas.height = height;
+
+    // 캔버스 클리어
+    ctx.clearRect(0, 0, width, height);
+
+    // 데이터 필터링 (0이 아닌 값만)
+    const filteredData = dataArray.filter(item => item.value > 0);
+
+    if (filteredData.length === 0) {
+        ctx.font = '16px Arial';
+        ctx.fillStyle = '#999';
+        ctx.textAlign = 'center';
+        ctx.fillText('데이터가 없습니다', width / 2, height / 2);
+        return;
+    }
+
+    // 전체 합계
+    const total = filteredData.reduce((sum, item) => sum + item.value, 0);
+
+    // 차트 중심과 반지름
+    const centerX = width / 2;
+    const centerY = height / 2 - 20;
+    const radius = Math.min(width, height) / 2 - 60;
+
+    // 파이 그리기
+    let currentAngle = -Math.PI / 2; // 12시 방향부터 시작
+
+    filteredData.forEach((item, index) => {
+        const sliceAngle = (item.value / total) * 2 * Math.PI;
+        const endAngle = currentAngle + sliceAngle;
+
+        // 파이 조각 그리기
+        ctx.beginPath();
+        ctx.fillStyle = colors[index % colors.length];
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, currentAngle, endAngle);
+        ctx.closePath();
+        ctx.fill();
+
+        // 테두리
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // 퍼센트 라벨 (중앙)
+        const middleAngle = currentAngle + sliceAngle / 2;
+        const labelRadius = radius * 0.7;
+        const labelX = centerX + labelRadius * Math.cos(middleAngle);
+        const labelY = centerY + labelRadius * Math.sin(middleAngle);
+
+        ctx.font = 'bold 14px Arial';
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.shadowBlur = 4;
+        ctx.fillText(item.value.toFixed(1) + '%', labelX, labelY);
+        ctx.shadowBlur = 0;
+
+        currentAngle = endAngle;
+    });
+
+    // 범례 그리기
+    const legendY = height - 40;
+    const legendItemWidth = width / Math.min(filteredData.length, 3);
+    const legendRows = Math.ceil(filteredData.length / 3);
+
+    filteredData.forEach((item, index) => {
+        const row = Math.floor(index / 3);
+        const col = index % 3;
+        const x = col * legendItemWidth + 20;
+        const y = legendY + row * 25;
+
+        // 색상 박스
+        ctx.fillStyle = colors[index % colors.length];
+        ctx.fillRect(x, y - 8, 15, 15);
+
+        // 텍스트
+        ctx.font = '12px Arial';
+        ctx.fillStyle = '#333';
+        ctx.textAlign = 'left';
+        ctx.fillText(item.name, x + 20, y);
+    });
 }
 
 // 알림 표시

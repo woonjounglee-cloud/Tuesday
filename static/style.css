@@ -284,11 +284,11 @@ table {
 }
 
 #balance-table input, #wj-isa-balance-table input {
-    font-size: 1.04rem;
+    font-size: 0.9rem;
 }
 
 #balance-table td:not(:has(input)), #wj-isa-balance-table td:not(:has(input)) {
-    font-size: 1.04rem;
+    font-size: 0.9rem;
 }
 
 /* Balance 테이블: 날짜, 추가납입 입력 필드는 가운데 정렬 */
